@@ -1,20 +1,26 @@
-enum ControllerButtons { R, L, Z };
-#define AMT_CONTROLLER_BUTTONS 3
-#define R_PIN 4
-#define L_PIN 5
+enum ControllerButtons { R, L, Z, S, U, D, A };
+#define AMT_CONTROLLER_BUTTONS 7
+#define R_PIN 5
+#define L_PIN 4
 #define Z_PIN 6
+#define S_PIN 7
+#define D_PIN 9
+#define U_PIN 8
+#define A_PIN 10
 
 class ControllerButton {
     private:
         int pin;
         int index;
         bool pressed;
+        bool inverted;
     public:
         ControllerButton(int pin, int index);
-        ControllerButton();
+        ControllerButton(int pin, int index, bool inverted);
         int getPin();
         int getIndex();
         bool isPressed();
+        bool isInverted();
         void press();
         void unpress();
 };

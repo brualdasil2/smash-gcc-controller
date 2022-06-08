@@ -20,10 +20,20 @@ void Controller::reset() {
 void Controller::sendButtons() {
     for (ControllerButton button : buttons) {
         if (button.isPressed()) {
-            digitalWrite(button.getPin(), HIGH);
+            if (button.isInverted()) {
+                digitalWrite(button.getPin(), LOW);
+            }
+            else {
+                digitalWrite(button.getPin(), HIGH);
+            }
         }
         else {
-            digitalWrite(button.getPin(), LOW);
+            if (button.isInverted()) {
+                digitalWrite(button.getPin(), HIGH);
+            }
+            else {
+                digitalWrite(button.getPin(), LOW);
+            }
         }
     }
 }

@@ -9,7 +9,11 @@ class Controller {
         ControllerButton r = ControllerButton(R_PIN, R);
         ControllerButton l = ControllerButton(L_PIN, L);
         ControllerButton z = ControllerButton(Z_PIN, Z);
-        ControllerButton buttons[AMT_CONTROLLER_BUTTONS] = { r, l, z };
+        ControllerButton s = ControllerButton(S_PIN, S, true);
+        ControllerButton u = ControllerButton(U_PIN, U);
+        ControllerButton d = ControllerButton(D_PIN, D);
+        ControllerButton a = ControllerButton(A_PIN, A);
+        ControllerButton buttons[AMT_CONTROLLER_BUTTONS] = { r, l, z, s, u, d, a };
         void setPressedButtons(ControllerButtons* pressedButtons, int amtButtons);
         void sendButtons();
     public:
