@@ -1,8 +1,9 @@
 #include <Arduino.h>
 #include "Button.h"
 #include "Actions.h"
+#include "RandomOptionManager.h"
 
-enum Mode { NOTHING, TECHCHASE, DI_RIGHT_AD, DI_LEFT_AD, RANDOM_DI_AD, LEDGE_N, LEDGE_NR, LEDGE_NRA, LEDGE_ALL };
+enum Mode { NOTHING, TECHCHASE, DI_RIGHT_AD, DI_LEFT_AD, RANDOM_DI_AD, LEDGE };
 #define MAX_MODE 7
 enum RandomLedge { NEUTRAL_GETUP, ROLL_GETUP, GETUP_ATTACK, JUMP, DROP_FAIR };
 enum RandomTech { NEUTRAL_TECH, TECHROLL_RIGHT, TECHROLL_LEFT };
@@ -37,35 +38,37 @@ Button buttons[] = {
   modeButton,
   auxButton
 };
-RandomDI randDi;
-int randLedgeGenerator;
+
+OPTION diOptions[] = {{NO_DI, 1}, {DI_RIGHT, 2}, {DI_LEFT, 2}};
+RandomOptionManager randomDiManager = RandomOptionManager(diOptions, 3);
+
+OPTION ledgeOptions[] = {{NEUTRAL_GETUP, 2}, {ROLL_GETUP, 2}, {GETUP_ATTACK, 1}, {JUMP, 2}, {DROP_FAIR, 1}};
+RandomOptionManager randomLedgeManager = RandomOptionManager(ledgeOptions, 5);
+
 int randomLedgeTime;
-bool tech;
+
+OPTION doTechOptions[] = {{1, 2}, {0, 1}};
+RandomOptionManager randomDoTechManager = RandomOptionManager(doTechOptions, 2);
+
 int randomMistechTime;
-RandomTech randTech;
-RandomMistech randMistech;
+
+OPTION techOptions[] = {{NEUTRAL_TECH, 1}, {TECHROLL_RIGHT, 1}, {TECHROLL_LEFT, 1}};
+RandomOptionManager randomTechManager = RandomOptionManager(techOptions, 3);
+
+OPTION mistechOptions[] = {{NEUTRAL_GETUP_MISTECH, 1}, {ROLL_RIGHT_MISTECH, 1}, {ROLL_LEFT_MISTECH, 1}, {GETUP_ATTACK_MISTECH, 1}};
+RandomOptionManager randomMistechManager = RandomOptionManager(mistechOptions, 4);
+
 
 
 void initRandomVals() {
-  int di = random(0, 5);
-  if (di == 0) {
-    randDi = NO_DI;
-  }
-  else if (di <= 2) {
-    randDi = DI_RIGHT;
-  }
-  else {
-    randDi = DI_LEFT;
-  }
-  randLedgeGenerator = random(0, 1000);
+  randomDiManager.randomizeOption();
+  randomLedgeManager.randomizeOption();
   randomLedgeTime = random(20, 150);
-  tech = random(0, 2);
+  randomDoTechManager.randomizeOption();
   randomMistechTime = random(1, 121);
-  randTech = (RandomTech)random(0, 3);
-  randMistech = (RandomMistech)random(0, 4);
+  randomTechManager.randomizeOption();
+  randomMistechManager.randomizeOption();
 }
-
-
 
 Action* getRandomLedgeRoutine(RandomLedge option, int waitFrames) {
     ledgeRoutineRightActions[FIRST_LEDGE_NOTHING] = Action(nothing, 0, waitFrames);
@@ -141,17 +144,17 @@ Action* getRandomTechChaseRoutine(bool tech, RandomTech techOption, RandomMistec
     }
 }
 
-void ledgeOptions(int amtOptions) {
+void ledgetrap() {
   if (aux) {
     initRandomVals();
     controller.reset();
   }
-  RandomLedge randLedge = (RandomLedge)(randLedgeGenerator%amtOptions);
-  Action* randomLedgeRoutine = getRandomLedgeRoutine(randLedge, randomLedgeTime);
+  Action* randomLedgeRoutine = getRandomLedgeRoutine((RandomLedge)randomLedgeManager.getCurrentOptionId(), randomLedgeTime);
   controller.tick(randomLedgeRoutine);
 }
 void doNothing() {
   controller.tick(nothingActions);
+  //controller.tick(dashDanceShieldActions);
 }
 void onTechchaseEnd() {
   setMode(DI_RIGHT_AD);
@@ -163,7 +166,7 @@ void downThrowTechchase() {
   }
   //controller.tick(getRandomTechChaseRoutine(tech, randTech, randMistech, randomMistechTime));
   //controller.tick(getRandomTechChaseRoutine(true, randTech, randMistech, randomMistechTime));
-  controller.tick(getRandomTechChaseRoutine(true, randTech, randMistech, randomMistechTime), &onTechchaseEnd);
+  controller.tick(getRandomTechChaseRoutine(true, (RandomTech)randomTechManager.getCurrentOptionId(), (RandomMistech)randomMistechManager.getCurrentOptionId(), randomMistechTime), &onTechchaseEnd);
 }
 void diRightAd() {
   if (aux) {
@@ -174,7 +177,6 @@ void diRightAd() {
   else {
     controller.tick(diRightActions);
   }
-  //downThrowTechchase();
 }
 void diLeftAd() {
   controller.tick(diLeftActions);
@@ -184,7 +186,7 @@ void randomDiAd() {
     initRandomVals();
     controller.reset();
   }
-  switch (randDi) {
+  switch (randomDiManager.getCurrentOptionId()) {
     case NO_DI:
       controller.tick(adActions);
       break;
@@ -228,18 +230,8 @@ void loop() {
     case RANDOM_DI_AD:
       randomDiAd();
       break;
-    case LEDGE_N:
-      ledgeOptions(1);
-      break;
-    case LEDGE_NR:
-      ledgeOptions(2);
-      break;
-    case LEDGE_NRA:
-      ledgeOptions(3);
-      break;
-    case LEDGE_ALL:
-      ledgeOptions(5);
-      break;
+    case LEDGE:
+      ledgetrap();
     case TECHCHASE:
       downThrowTechchase();
       break;
