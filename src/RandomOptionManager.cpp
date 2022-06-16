@@ -15,7 +15,7 @@ bool RandomOptionManager::isThisOption(int currentWeightSum, int i, int randomWe
     return (randomWeight >= currentWeightSum && randomWeight < (currentWeightSum + options[i].weight));
 }
 void RandomOptionManager::randomizeOption() {
-    int randomWeight = random(0, totalWeightSum - 1);
+    int randomWeight = random(0, totalWeightSum);
     int currentWeightSum = 0;
     for (int i = 0; i < amtOptions; i++) {
         if (isThisOption(currentWeightSum, i, randomWeight)) {

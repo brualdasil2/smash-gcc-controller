@@ -95,7 +95,6 @@ Action* getRandomLedgeRoutine(RandomLedge option, int waitFrames) {
       ledgeRoutineRightActions[FIRST_LEDGE_NOTHING + 2] = Action(up, 1, 2);
       ledgeRoutineRightActions[FIRST_LEDGE_NOTHING + 3] = Action(leftAttack, 2, 30);
     }
-    Serial.println(option);
     return ledgeRoutineRightActions;
 }
 Action* getRandomMistechActions(RandomMistech mistechOption, int waitFrames) {
@@ -216,7 +215,6 @@ void setup() {
 void loop() {
   modeButton.checkClick();
   auxButton.checkClick();
-  Serial.println(mode);
   switch(mode) {
     case NOTHING:
       doNothing();
