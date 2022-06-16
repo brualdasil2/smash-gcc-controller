@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "Action.h"
+typedef void (*FUNCTION)();
 
 class Controller {
     private:
@@ -19,6 +20,7 @@ class Controller {
     public:
         Controller();
         void tick(Action actions[]);
+        void tick(Action actions[], FUNCTION onEnd);
         void reset();
         unsigned int getFrame();
         

@@ -62,6 +62,32 @@ void Controller::tick(Action actions[]) {
     }
     sendButtons();
 }
+void Controller::tick(Action actions[], FUNCTION onEnd) {
+    clearPressedButtons();
+    if (frame > 0) {
+        Action currentAction = actions[step];
+        setPressedButtons(currentAction.getButtons(), currentAction.getAmtButtons());
+        frame--;
+        if (frame == 0) {
+            step++;
+            Action nextAction = actions[step];
+            if (nextAction.getType() == END) {
+                reset();
+                onEnd();
+            }
+            else {
+                frame = nextAction.getFrames();
+            }
+        }
+    }
+    else if (frame == -1) {
+        Action firstAction = actions[step];
+        frame = firstAction.getFrames();
+        setPressedButtons(firstAction.getButtons(), firstAction.getAmtButtons());
+        frame--;
+    }
+    sendButtons();
+}
 void Controller::setPressedButtons(ControllerButtons* pressedButtons, int amtButtons) {
     for (int i = 0; i < amtButtons; i++) {
         buttons[pressedButtons[i]].press();
