@@ -1,57 +1,111 @@
 #include "Controller.h"
 
 
-#define FIRST_LEDGE_NOTHING 11
-#define TECH_OPTION 10
-#define MISTECH_WAIT 11
-#define MISTECH_OPTION 12
+ActionButton z = ActionButton(Z);
+ActionButton a = ActionButton(A);
+ActionButton s = ActionButton(S);
+ActionButton r = ActionButton(R);
+ActionButton l = ActionButton(L);
+ActionButton u = ActionButton(U);
+ActionButton d = ActionButton(D);
 
-ControllerButtons adRight[] = { R, Z };
-ControllerButtons adLeft[] = { L, Z };
-ControllerButtons right[] = { R };
-ControllerButtons rightShield[] = { R, S };
-ControllerButtons left[] = { L };
-ControllerButtons leftShield[] = { L, S };
-ControllerButtons shield[] = { S };
-ControllerButtons ad[] = { Z };
-ControllerButtons up[] = { U };
-ControllerButtons down[] = { D };
-ControllerButtons attack[] = { A };
-ControllerButtons leftAttack[] = { L, A };
-ControllerButtons leftRisingFair[] = { L, A };
-ControllerButtons nothing[] = { };
+
+ActionButton nothingArray[] = { };
+ActionButtonArray nothing = { nothingArray, 0 };
+
+ActionButton shieldArray[] = { s };
+ActionButtonArray shield = { shieldArray, 1 };
+
+ActionButton attackArray[] = { a };
+ActionButtonArray attack = { attackArray, 1 };
+
+ActionButton adRightArray[] = { z, r };
+ActionButtonArray adRight = { adRightArray, 2 };
+
+ActionButton adLeftArray[] = { z, l };
+ActionButtonArray adLeft = { adLeftArray, 2 };
+
+ActionButton adUpArray[] = { z, u };
+ActionButtonArray adUp = { adUpArray, 2 };
+
+ActionButton adDownArray[] = { z, d };
+ActionButtonArray adDown = { adDownArray, 2 };
+
+ActionButton rightArray[] = { r };
+ActionButtonArray right = { rightArray, 1 };
+
+ActionButton leftArray[] = { l };
+ActionButtonArray left = { leftArray, 1 };
+
+ActionButton upArray[] = { u };
+ActionButtonArray up = { upArray, 1 };
+
+ActionButton downArray[] = { d };
+ActionButtonArray down = { downArray, 1 };
+
+Action nothingActions[] = {
+  Action(nothing, 60),
+  Action(END)
+};
+Action adRightActions[] = {
+  Action(adRight, 5),
+  Action(right, 5),
+  Action(END)
+};
+Action adLeftActions[] = {
+  Action(adLeft, 5),
+  Action(left, 5),
+  Action(END)
+};
+Action adUpActions[] = {
+  Action(adUp, 5),
+  Action(up, 5),
+  Action(END)
+};
+Action adDownActions[] = {
+  Action(adDown, 5),
+  Action(down, 5),
+  Action(END)
+};
+Action allButtonsTestActions[] = {
+  Action(right, 20),
+  Action(shield, 20),
+  Action(left, 20),
+  Action(shield, 20),
+  Action(nothing, 60),
+  Action(up, 10),
+  Action(nothing, 60),
+  Action(up, 2),
+  Action(nothing, 60),
+  Action(attack, 5),
+  Action(nothing, 30),
+  Action(down, 2),
+  Action(nothing, 10),
+  Action(down, 2),
+  Action(nothing, 10),
+  Action(down, 2),
+  Action(END)
+};
+
+
+
+
+
+
+
+
 
 /*
-mytha at 0 in sbf
-down 2
-nothing 5
-down 2
-nothing 40
-left 2
-nothing 40
-down 2
-nothing 40
-right 40
-TECH option 10
-shield 120
-
-
-///
-
-down 2
-nothing 5
-down 2
-nothing 40
-left 2
-nothing 40
-down 2
-nothing 40
-right 40
-nothing 30
-nothing (1 - 120)
-GETUP OPTION
-
-*/
+Action sdiRightActions[] = {
+  Action(adRight, 2, 2),
+  Action(nothing, 0, 2),
+  Action(END)
+};
+Action sdiUpActions[] = {
+  Action(adUp, 2, 2),
+  Action(nothing, 0, 2),
+  Action(END)
+};
 Action downThrowTechActions[] = {
   Action(nothing, 0, 120),
   Action(down, 1, 3),
@@ -148,4 +202,4 @@ Action ledgeRoutineRightActions[] {
   Action(nothing, 0, 1),
   Action(shield, 1, 150),
   Action(END)
-};
+};*/

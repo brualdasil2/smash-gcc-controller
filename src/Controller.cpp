@@ -1,16 +1,26 @@
 #include "Controller.h"
 
 Controller::Controller() {
-    for (ControllerButton button : buttons) {
-        pinMode(button.getPin(), OUTPUT);
-    }
+    inputModeOff();
     clearPressedButtons();
     step = 0;
     frame = -1;
 }
 void Controller::clearPressedButtons() {
     for (int i = 0; i < AMT_CONTROLLER_BUTTONS; i++) {
-        buttons[i].unpress();
+        buttons[i]->unpress();
+    }
+}
+void Controller::inputModeOn() {
+    inputMode = true;
+    for (ControllerButton* button : buttons) {
+        pinMode(button->getPin(), INPUT);
+    }
+}
+void Controller::inputModeOff() {
+    inputMode = false;
+    for (ControllerButton* button : buttons) {
+        pinMode(button->getPin(), OUTPUT);
     }
 }
 void Controller::reset() {
@@ -18,35 +28,26 @@ void Controller::reset() {
     step = 0;
 }
 void Controller::sendButtons() {
-    for (ControllerButton button : buttons) {
-        if (button.isPressed()) {
-            if (button.isInverted()) {
-                digitalWrite(button.getPin(), LOW);
-            }
-            else {
-                digitalWrite(button.getPin(), HIGH);
-            }
-        }
-        else {
-            if (button.isInverted()) {
-                digitalWrite(button.getPin(), HIGH);
-            }
-            else {
-                digitalWrite(button.getPin(), LOW);
-            }
-        }
+    if (inputMode) return;
+    for (ControllerButton* button : buttons) {
+        button->sendSignal();
     }
 }
-void Controller::tick(Action actions[]) {
+void Controller::tick() {
     clearPressedButtons();
     if (frame > 0) {
         Action currentAction = actions[step];
-        setPressedButtons(currentAction.getButtons(), currentAction.getAmtButtons());
+        // TODO
+        setPressedButtons(currentAction.getButtons());
         frame--;
         if (frame == 0) {
             step++;
             Action nextAction = actions[step];
             if (nextAction.getType() == END) {
+                reset();
+            }
+            else if (nextAction.getType() == NEXT) {
+                actions = nextAction.getNextActions();
                 reset();
             }
             else {
@@ -57,42 +58,23 @@ void Controller::tick(Action actions[]) {
     else if (frame == -1) {
         Action firstAction = actions[step];
         frame = firstAction.getFrames();
-        setPressedButtons(firstAction.getButtons(), firstAction.getAmtButtons());
+        setPressedButtons(firstAction.getButtons());
         frame--;
     }
     sendButtons();
 }
-void Controller::tick(Action actions[], FUNCTION onEnd) {
-    clearPressedButtons();
-    if (frame > 0) {
-        Action currentAction = actions[step];
-        setPressedButtons(currentAction.getButtons(), currentAction.getAmtButtons());
-        frame--;
-        if (frame == 0) {
-            step++;
-            Action nextAction = actions[step];
-            if (nextAction.getType() == END) {
-                reset();
-                onEnd();
-            }
-            else {
-                frame = nextAction.getFrames();
-            }
+void Controller::setPressedButtons(ActionButtonArray pressedButtons) {
+    for (int i = 0; i < pressedButtons.amtButtons; i++) {
+        buttons[pressedButtons.actionButtons[i].getButtonCode()]->press();
+        if (pressedButtons.actionButtons[i].isAnalog()) {
+            buttons[pressedButtons.actionButtons[i].getButtonCode()]->setAnalogValue(pressedButtons.actionButtons[i].getValue());
         }
-    }
-    else if (frame == -1) {
-        Action firstAction = actions[step];
-        frame = firstAction.getFrames();
-        setPressedButtons(firstAction.getButtons(), firstAction.getAmtButtons());
-        frame--;
-    }
-    sendButtons();
-}
-void Controller::setPressedButtons(ControllerButtons* pressedButtons, int amtButtons) {
-    for (int i = 0; i < amtButtons; i++) {
-        buttons[pressedButtons[i]].press();
     }
 }
 unsigned int Controller::getFrame() {
     return frame;
+}
+void Controller::setActions(Action* actions) {
+    Controller::actions = actions;
+    reset();
 }

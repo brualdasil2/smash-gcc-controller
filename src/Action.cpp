@@ -1,23 +1,26 @@
 #include "Action.h"
 
-Action::Action(ControllerButtons* buttons, int amtButtons, int frames) {
-    Action::buttons = buttons;
-    Action::amtButtons = amtButtons;
+Action::Action(ActionButtonArray actionButtons, int frames) {
+    Action::actionButtons = actionButtons;
     Action::frames = frames;
     Action::type = NORMAL;
 }
 Action::Action(ActionType type) {
     Action::type = type;
 }
-ControllerButtons* Action::getButtons() {
-    return buttons;
+Action::Action(Action* nextActions) {
+    type = NEXT;
+    Action::nextActions = nextActions;
 }
-int Action::getAmtButtons() {
-    return amtButtons;
+ActionButtonArray Action::getButtons() {
+    return actionButtons;
 }
 int Action::getFrames() {
     return frames;
 }
 ActionType Action::getType() {
     return type;
+}
+Action* Action::getNextActions() {
+    return nextActions;
 }

@@ -2,29 +2,44 @@
 #include "Button.h"
 #include "Actions.h"
 #include "RandomOptionManager.h"
+#include "FrameDelayManager.h"
 
-enum Mode { NOTHING, TECHCHASE, DI_RIGHT_AD, DI_LEFT_AD, RANDOM_DI_AD, LEDGE };
-#define MAX_MODE 7
+// enum Mode { NOTHING, DI_RIGHT_AD, SDI_RIGHT, TECHCHASE, DI_LEFT_AD, RANDOM_DI_AD, LEDGE };
+enum Mode { NOTHING, DI_RIGHT_AD };
+#define MAX_MODE 1
+#define X_INPUT_PIN A0
+#define Y_INPUT_PIN A1
 enum RandomLedge { NEUTRAL_GETUP, ROLL_GETUP, GETUP_ATTACK, JUMP, DROP_FAIR };
 enum RandomTech { NEUTRAL_TECH, TECHROLL_RIGHT, TECHROLL_LEFT };
 enum RandomMistech { NEUTRAL_GETUP_MISTECH, ROLL_RIGHT_MISTECH, ROLL_LEFT_MISTECH, GETUP_ATTACK_MISTECH };
 enum RandomDI { NO_DI, DI_RIGHT, DI_LEFT };
 
 Controller controller = Controller();
+FrameDelayManager delayManager = FrameDelayManager();
 
 Mode mode = NOTHING;
 Mode prevMode = NOTHING;
 void setMode(Mode newMode) {
   prevMode = mode;
   mode = newMode;
+  switch(mode) {
+    case NOTHING:
+      controller.inputModeOff();
+      controller.setActions(nothingActions);
+      break;
+    case DI_RIGHT_AD:
+      controller.inputModeOff();
+      controller.setActions(allButtonsTestActions);
+      break;
+  }
 }
 void incrementMode() {
   int tempMode = mode;
   tempMode++;
-  setMode((Mode)tempMode);
-  if (mode > MAX_MODE) {
-    mode = NOTHING;
+  if (tempMode > MAX_MODE) {
+    tempMode = NOTHING;
   }
+  setMode((Mode)tempMode);
   controller.reset();
 }
 bool aux = false;
@@ -70,133 +85,6 @@ void initRandomVals() {
   randomMistechManager.randomizeOption();
 }
 
-Action* getRandomLedgeRoutine(RandomLedge option, int waitFrames) {
-    ledgeRoutineRightActions[FIRST_LEDGE_NOTHING] = Action(nothing, 0, waitFrames);
-    Action ledgeAction = Action(nothing, 0, 1);
-    switch(option) {
-      case NEUTRAL_GETUP:
-        ledgeAction = Action(left, 1, 2);
-        break;
-      case ROLL_GETUP:
-        ledgeAction = Action(shield, 1, 2);
-        break;
-      case GETUP_ATTACK:
-        ledgeAction = Action(attack, 1, 2);
-        break;
-      case JUMP:
-        ledgeAction = Action(up, 1, 2);
-        break;
-      case DROP_FAIR:
-        ledgeAction = Action(down, 1, 2);
-        break;
-    }
-    ledgeRoutineRightActions[FIRST_LEDGE_NOTHING + 1] = ledgeAction;
-    if (option == DROP_FAIR) {
-      ledgeRoutineRightActions[FIRST_LEDGE_NOTHING + 2] = Action(up, 1, 2);
-      ledgeRoutineRightActions[FIRST_LEDGE_NOTHING + 3] = Action(leftAttack, 2, 30);
-    }
-    return ledgeRoutineRightActions;
-}
-Action* getRandomMistechActions(RandomMistech mistechOption, int waitFrames) {
-    downThrowMistechActions[MISTECH_WAIT] = Action(nothing, 0, waitFrames);
-    Action mistechAction = Action(nothing, 0, 1);
-    switch(mistechOption) {
-      case NEUTRAL_GETUP_MISTECH:
-        mistechAction = Action(up, 1, 10);
-        break;
-      case ROLL_RIGHT_MISTECH:
-        mistechAction = Action(right, 1, 10);
-        break;
-      case ROLL_LEFT_MISTECH:
-        mistechAction = Action(left, 1, 10);
-        break;
-      case GETUP_ATTACK_MISTECH:
-        mistechAction = Action(attack, 1, 10);
-        break;
-    }
-    downThrowMistechActions[MISTECH_OPTION] = mistechAction;
-    return downThrowMistechActions;
-}
-Action* getRandomTechActions(RandomTech techOption) {
-    Action techAction = Action(nothing, 0, 1);
-    switch(techOption) {
-      case NEUTRAL_TECH:
-        techAction = Action(left, 1, 2);
-        break;
-      case TECHROLL_RIGHT:
-        techAction = Action(rightShield, 2, 10);
-        break;
-      case TECHROLL_LEFT:
-        techAction = Action(leftShield, 2, 10);
-        break;
-    }
-    downThrowTechActions[TECH_OPTION] = techAction;
-    return downThrowTechActions;
-}
-
-Action* getRandomTechChaseRoutine(bool tech, RandomTech techOption, RandomMistech mistechOption, int waitFrames) {
-    if (tech) {
-      return getRandomTechActions(techOption);
-    }
-    else {
-      return getRandomMistechActions(mistechOption, waitFrames);
-    }
-}
-
-void ledgetrap() {
-  if (aux) {
-    initRandomVals();
-    controller.reset();
-  }
-  Action* randomLedgeRoutine = getRandomLedgeRoutine((RandomLedge)randomLedgeManager.getCurrentOptionId(), randomLedgeTime);
-  controller.tick(randomLedgeRoutine);
-}
-void doNothing() {
-  controller.tick(nothingActions);
-  //controller.tick(dashDanceShieldActions);
-}
-void onTechchaseEnd() {
-  setMode(DI_RIGHT_AD);
-}
-void downThrowTechchase() {
-  if (aux) {
-    initRandomVals();
-    controller.reset();
-  }
-  //controller.tick(getRandomTechChaseRoutine(tech, randTech, randMistech, randomMistechTime));
-  //controller.tick(getRandomTechChaseRoutine(true, randTech, randMistech, randomMistechTime));
-  controller.tick(getRandomTechChaseRoutine(true, (RandomTech)randomTechManager.getCurrentOptionId(), (RandomMistech)randomMistechManager.getCurrentOptionId(), randomMistechTime), &onTechchaseEnd);
-}
-void diRightAd() {
-  if (aux) {
-    setMode(prevMode);
-    initRandomVals();
-    controller.reset();
-  }
-  else {
-    controller.tick(diRightActions);
-  }
-}
-void diLeftAd() {
-  controller.tick(diLeftActions);
-}
-void randomDiAd() {
-  if (aux) {
-    initRandomVals();
-    controller.reset();
-  }
-  switch (randomDiManager.getCurrentOptionId()) {
-    case NO_DI:
-      controller.tick(adActions);
-      break;
-    case DI_RIGHT:
-      controller.tick(diRightActions);
-      break;
-    case DI_LEFT:
-      controller.tick(diLeftActions);
-      break;
-  }
-}
 
 
 
@@ -208,35 +96,34 @@ void setup() {
   }
   Serial.begin(9600);
   Serial.println("Serial monitor on");
-  randomSeed(analogRead(A0));
+  randomSeed(analogRead(A5));
   initRandomVals();
+  controller.setActions(nothingActions);
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
 }
 
 void loop() {
   modeButton.checkClick();
   auxButton.checkClick();
-  switch(mode) {
-    case NOTHING:
-      doNothing();
-      break;
-    case DI_RIGHT_AD:
-      diRightAd();
-      break;
-    case DI_LEFT_AD:
-      diLeftAd();
-      break;
-    case RANDOM_DI_AD:
-      randomDiAd();
-      break;
-    case LEDGE:
-      ledgetrap();
-    case TECHCHASE:
-      downThrowTechchase();
-      break;
+
+  controller.tick();
+  if (aux) {
+    Serial.println(analogRead(X_INPUT_PIN));
+    Serial.println(analogRead(Y_INPUT_PIN));
   }
+  /*
+  RIGHT: X 0
+  LEFT: X 600
+  NEUTRAL: X 350
+
+  UP: Y 0
+  DOWN: Y 600
+  NEUTRAL: Y 350
+  */
 
   aux = false;
 
-  delay(16);
+  delay(delayManager.getCurrentFrameDelay());
   
 }

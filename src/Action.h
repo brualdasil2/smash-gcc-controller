@@ -1,18 +1,20 @@
-#include "ControllerButton.h"
+#include "ActionButton.h"
 
-enum ActionType { NORMAL, END, LOOP };
+enum ActionType { NORMAL, END, NEXT };
 
 class Action {
     private:
-        ControllerButtons* buttons;
-        int amtButtons;
+        ActionButtonArray actionButtons;
         int frames;
         ActionType type;
+        Action* nextActions;
     public:
-        Action(ControllerButtons* buttons, int amtButtons, int frames);
+        Action(ActionButtonArray actionButtons, int frames);
         Action(ActionType type);
-        ControllerButtons* getButtons();
+        Action(Action* nextActions);
+        ActionButtonArray getButtons();
         int getAmtButtons();
         int getFrames();
+        Action* getNextActions();
         ActionType getType();
 };
