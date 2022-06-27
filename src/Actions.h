@@ -67,6 +67,7 @@ Action adDownActions[] = {
   Action(down, 5),
   Action(END)
 };
+
 Action allButtonsTestActions[] = {
   Action(right, 20),
   Action(shield, 20),

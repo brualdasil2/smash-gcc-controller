@@ -5,8 +5,8 @@
 #include "FrameDelayManager.h"
 
 // enum Mode { NOTHING, DI_RIGHT_AD, SDI_RIGHT, TECHCHASE, DI_LEFT_AD, RANDOM_DI_AD, LEDGE };
-enum Mode { NOTHING, DI_RIGHT_AD };
-#define MAX_MODE 1
+enum Mode { NOTHING, DI_RIGHT_AD, DI_LEFT_AD };
+#define MAX_MODE 2
 #define X_INPUT_PIN A0
 #define Y_INPUT_PIN A1
 enum RandomLedge { NEUTRAL_GETUP, ROLL_GETUP, GETUP_ATTACK, JUMP, DROP_FAIR };
@@ -29,7 +29,11 @@ void setMode(Mode newMode) {
       break;
     case DI_RIGHT_AD:
       controller.inputModeOff();
-      controller.setActions(allButtonsTestActions);
+      controller.setActions(adRightActions);
+      break;
+    case DI_LEFT_AD:
+      controller.inputModeOff();
+      controller.setActions(adLeftActions);
       break;
   }
 }
@@ -46,8 +50,15 @@ bool aux = false;
 void activateAux() {
   aux = true;
 }
+void click() {
+  Serial.println("CLICK");
+}
+void doubleClick() {
+  Serial.println("DOUBLE CLICK");
+}
 ClickButton modeButton = ClickButton(3, &incrementMode);
-ClickButton auxButton = ClickButton(2, &activateAux);
+// ClickButton auxButton = ClickButton(2, &activateAux);
+ClickButton auxButton = ClickButton(2, &click, &doubleClick);
 
 Button buttons[] = {
   modeButton,
@@ -99,8 +110,8 @@ void setup() {
   randomSeed(analogRead(A5));
   initRandomVals();
   controller.setActions(nothingActions);
-  pinMode(A0, INPUT);
-  pinMode(A1, INPUT);
+  pinMode(X_INPUT_PIN, INPUT);
+  pinMode(Y_INPUT_PIN, INPUT);
 }
 
 void loop() {
@@ -108,10 +119,10 @@ void loop() {
   auxButton.checkClick();
 
   controller.tick();
-  if (aux) {
+  /*if (aux) {
     Serial.println(analogRead(X_INPUT_PIN));
     Serial.println(analogRead(Y_INPUT_PIN));
-  }
+  }*/
   /*
   RIGHT: X 0
   LEFT: X 600

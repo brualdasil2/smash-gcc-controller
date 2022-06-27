@@ -1,10 +1,12 @@
 typedef void (*FUNCTION)();
 
+#define DOUBLE_CLICK_FRAME_WINDOW 15
+
 class Button {
   protected:
     int pin;
     FUNCTION onClick;
-    FUNCTION onRelease;
+    int doubleClickFrameCounter;
   public:
     Button(int pin, FUNCTION onClick);
     void checkClick();
@@ -14,8 +16,10 @@ class Button {
 class ClickButton : public Button {
   private:
     bool clicked;
+    FUNCTION onDoubleClick;
   public:
     ClickButton(int pin, FUNCTION onClick);
+    ClickButton(int pin, FUNCTION onClick, FUNCTION onDoubleClick);
     void checkClick();
 };
 
