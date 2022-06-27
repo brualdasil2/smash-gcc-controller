@@ -58,8 +58,8 @@ Action nothingActions[] = {
   Action(END)
 };
 Action customDiActions[] = {
-  Action(customDi, 8),
-  Action(customAd, 1),
+  Action(customDi, 5),
+  Action(customAd, 5),
   Action(END)
 };
 

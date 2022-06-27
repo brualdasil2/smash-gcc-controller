@@ -31,14 +31,6 @@ void setMode(Mode newMode) {
       controller.inputModeOff();
       controller.setActions(customDiActions);
       break;
-    case DI_RIGHT_AD:
-      controller.inputModeOff();
-      controller.setActions(adRightActions);
-      break;
-    case DI_LEFT_AD:
-      controller.inputModeOff();
-      controller.setActions(adLeftActions);
-      break;
   }
 }
 void incrementMode() {
@@ -154,8 +146,8 @@ void customDiLogic() {
       customAdArray[amtButtons] = z;
       customDi.amtButtons = amtButtons;
       customAd.amtButtons = amtButtons+1;
-      customDiActions[0] = Action(customDi, 8);
-      customDiActions[1] = Action(customAd, 1);
+      customDiActions[0] = Action(customDi, 5);
+      customDiActions[1] = Action(customAd, 5);
       controller.setActions(customDiActions);
     }
     else {
@@ -190,10 +182,6 @@ void loop() {
       break;
     case CUSTOM_DI:
       customDiLogic();
-      break;
-    case DI_RIGHT_AD:
-      break;
-    case DI_LEFT_AD:
       break;
   }
 
