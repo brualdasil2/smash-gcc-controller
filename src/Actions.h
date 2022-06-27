@@ -16,6 +16,9 @@ ActionButtonArray nothing = { nothingArray, 0 };
 ActionButton shieldArray[] = { s };
 ActionButtonArray shield = { shieldArray, 1 };
 
+ActionButton adArray[] = { z };
+ActionButtonArray ad = { adArray, 1 };
+
 ActionButton attackArray[] = { a };
 ActionButtonArray attack = { attackArray, 1 };
 
@@ -43,10 +46,23 @@ ActionButtonArray up = { upArray, 1 };
 ActionButton downArray[] = { d };
 ActionButtonArray down = { downArray, 1 };
 
+ActionButton customDiArray[] = { r, u };
+ActionButtonArray customDi = { customDiArray, 0 };
+
+ActionButton customAdArray[] = { z, s, a };
+ActionButtonArray customAd = { customAdArray, 1 };
+
+
 Action nothingActions[] = {
   Action(nothing, 60),
   Action(END)
 };
+Action customDiActions[] = {
+  Action(customDi, 8),
+  Action(customAd, 1),
+  Action(END)
+};
+
 Action adRightActions[] = {
   Action(adRight, 5),
   Action(right, 5),
