@@ -83,6 +83,11 @@ Action adDownActions[] = {
   Action(down, 5),
   Action(END)
 };
+Action adActions[] = {
+  Action(ad, 5),
+  Action(nothing, 5),
+  Action(END)
+};
 
 Action allButtonsTestActions[] = {
   Action(right, 20),

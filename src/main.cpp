@@ -5,8 +5,8 @@
 #include "FrameDelayManager.h"
 
 // enum Mode { NOTHING, DI_RIGHT_AD, SDI_RIGHT, TECHCHASE, DI_LEFT_AD, RANDOM_DI_AD, LEDGE };
-enum Mode { NOTHING, CUSTOM_DI };
-#define MAX_MODE 1
+enum Mode { NOTHING, CUSTOM_DI, RANDOM_DI };
+#define MAX_MODE 2
 #define X_INPUT_PIN A0
 #define Y_INPUT_PIN A1
 enum RandomLedge { NEUTRAL_GETUP, ROLL_GETUP, GETUP_ATTACK, JUMP, DROP_FAIR };
@@ -30,6 +30,10 @@ void setMode(Mode newMode) {
     case CUSTOM_DI:
       controller.inputModeOff();
       controller.setActions(customDiActions);
+      break;
+    case RANDOM_DI:
+      controller.inputModeOff();
+      controller.setActions(adActions);
       break;
   }
 }
@@ -99,13 +103,13 @@ void setup() {
   for (Button button : buttons) {
     pinMode(button.getPin(), INPUT);
   }
+  pinMode(X_INPUT_PIN, INPUT);
+  pinMode(Y_INPUT_PIN, INPUT);
   Serial.begin(9600);
   Serial.println("Serial monitor on");
   randomSeed(analogRead(A5));
   initRandomVals();
   controller.setActions(nothingActions);
-  pinMode(X_INPUT_PIN, INPUT);
-  pinMode(Y_INPUT_PIN, INPUT);
 }
 bool waitingDI = false;
 
@@ -158,6 +162,23 @@ void customDiLogic() {
   }
 }
 
+void randomDiLogic() {
+  if (aux) {
+    initRandomVals();
+    switch(randomDiManager.getCurrentOptionId()) {
+      case NO_DI:
+        controller.setActions(adActions);
+        break;
+      case DI_RIGHT:
+        controller.setActions(adRightActions);
+        break;
+      case DI_LEFT:
+        controller.setActions(adLeftActions);
+        break;
+    }
+  }
+}
+
 
 void loop() {
   modeButton.checkClick();
@@ -182,6 +203,9 @@ void loop() {
       break;
     case CUSTOM_DI:
       customDiLogic();
+      break;
+    case RANDOM_DI:
+      randomDiLogic();
       break;
   }
 
